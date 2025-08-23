@@ -2,7 +2,7 @@
 #include <Lexer.h>
 #include <vector>
 int main(){
-    Lexer a("13121+-x");
+    Lexer a("13121+-");
     std::vector<flags::Token> tkn{};
     while (true){
         flags::Token x = a.get_token();
