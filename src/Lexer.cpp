@@ -46,7 +46,11 @@ flags::Token Lexer::get_token()
         case '!': return make_single_char(flags::EXPRESSION_NOT);
         case '-': return make_single_char(flags::EXPRESSION_MINUS);
         case '&': return make_single_char(flags::EXPRESSION_AND);
-
+        case '{': return make_single_char(flags::EXPRESSION_OBRACKET);
+        case '}': return make_single_char(flags::EXPRESSION_CBRACKET);
+        case '(': return make_single_char(flags::EXPRESSION_LPAREN);
+        case ')': return make_single_char(flags::EXPRESSION_RPAREN);
+        
         default:
             if (isdigit(*current_char)){
                 const char* start_tkn = current_char;
