@@ -2,17 +2,16 @@
 #include <Lexer.h>
 #include <vector>
 int main(){
-    Lexer a("13121+-");
+    Lexer a("x123102930129=20+1111 11\"a aa\"");
     std::vector<flags::Token> tkn{};
     while (true){
-        flags::Token x = a.get_token();
-        if (x.type == flags::EXPRESSION_NPOS){
-            std::cout<<"TYPE: "<<x.type<<" Value:"<<x.val<<std::endl;
+        flags::Token tkn = a.get_token();
+        if (tkn.type == flags::EXPRESSION_NPOS ){
             break;
-        } else {
-            std::cout<<"TYPE: "<<x.type<<" Value:"<<x.val<<std::endl;
-            tkn.push_back(x);
         }
+        if (tkn.data == ""){
+            tkn.data = "?";
+        }
+        std::cout<<tkn.data<<"\t"<<tkn.type<<"\t"<<tkn.size<<std::endl;
     }
-    
 }

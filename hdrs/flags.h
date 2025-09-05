@@ -15,10 +15,25 @@ namespace flags{
         EXPRESSION_OR,
         EXPRESSION_NOT,
         EXPRESSION_NUMBER,
-        EXPRESSION_NPOS
+        EXPRESSION_NPOS,
+        EXPRESSION_STRING,
+        EXPRESSION_NAME
     };
     struct Token{
-        int val;
+        std::string_view data;
+        long int size;
         T_Type type;
+        bool is_operation(){
+            if (type != EXPRESSION_NUMBER ){
+                return true;
+            }
+            return false;
+        }
+        bool is_number(){
+            if (type == EXPRESSION_NUMBER){
+                return true;
+            }
+            return false;
+        }
     };
 }

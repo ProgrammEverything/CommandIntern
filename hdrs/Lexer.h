@@ -6,6 +6,7 @@ public:
     flags::Token get_token();
     void consume_whitespace();
     bool next_step();
+    bool can_be_next();
 private:
     bool is_space(const char* x);
     std::string_view m_v;
