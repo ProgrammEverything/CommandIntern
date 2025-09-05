@@ -4,6 +4,10 @@
 #include <malloc.h>
 flags::Token Lexer::get_token()
 {
+    auto make_single_char = [this](flags::T_Type type){
+        next_step();
+        return flags::Token{.size=1, .type=type};
+    };
     while (is_space(current_char)) {
         consume_whitespace();
     }
@@ -28,34 +32,35 @@ flags::Token Lexer::get_token()
                 flags::T_Type::EXPRESSION_STRING
             };
         }
-        case '|': next_step();return flags::Token{.size=1, .type=flags::T_Type::EXPRESSION_OR};
-        case '+': next_step();return flags::Token{.size=1, .type=flags::T_Type::EXPRESSION_PLUS};
-        case '!': next_step();return flags::Token{.size=1, .type=flags::T_Type::EXPRESSION_NOT};
         case '=': 
             if (can_be_next() && *(current_char+1) == '='){
                 next_step(); // Consume next turn for the double = 
-                next_step();
-                return flags::Token{.size=1, .type=flags::T_Type::EXPRESSION_ASSIGN};
+                return make_single_char(flags::EXPRESSION_EQUAL);
             } else {
-                next_step();
-                return flags::Token{.size=1, .type=flags::T_Type::EXPRESSION_EQUAL};
+                return make_single_char(flags::EXPRESSION_ASSIGN);
             }
+
+        case ';': return make_single_char(flags::EXPRESSION_END);
+        case '|': return make_single_char(flags::EXPRESSION_OR);
+        case '+': return make_single_char(flags::EXPRESSION_PLUS);
+        case '!': return make_single_char(flags::EXPRESSION_NOT);
+        case '-': return make_single_char(flags::EXPRESSION_MINUS);
+        case '&': return make_single_char(flags::EXPRESSION_AND);
+
         default:
             if (isdigit(*current_char)){
                 const char* start_tkn = current_char;
-                while (isdigit(*current_char) && next_step()){
-                }
+                while (isdigit(*current_char) && next_step()){}
                 int size = current_char-start_tkn;
                 return flags::Token{std::string_view(start_tkn, size), size, flags::T_Type::EXPRESSION_NUMBER};
-            } else if (isalpha(*current_char)){
+            } else if (isalpha(*current_char) || *current_char=='_'){
                 const char* start_tkn = current_char;
-                while ((isalpha(*current_char) || isdigit(*current_char)) && next_step()){
-                }
+                while ((isalpha(*current_char) || isdigit(*current_char) || *current_char=='_') && next_step()){}
                 int size = current_char-start_tkn;
                 return flags::Token{std::string_view(start_tkn, size), size, flags::T_Type::EXPRESSION_NAME};
             }
             else if (!can_be_next()){
-                return flags::Token{.size=1, .type=flags::T_Type::EXPRESSION_NPOS};
+                return make_single_char(flags::EXPRESSION_NPOS);
             }
             else {
                 throw std::runtime_error("Unkown character");
@@ -77,6 +82,8 @@ bool Lexer::next_step()
     current_char = &m_v[pos];
     return true;
 }
+
+
 
 bool Lexer::can_be_next()
 {
