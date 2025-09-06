@@ -4,16 +4,26 @@
 #include <malloc.h>
 flags::Token Lexer::get_token()
 {
-    auto make_single_char = [this](flags::T_Type type){
+
+    if (is_space(current_char)) { // If current character is space. skip until the current character is not a space
+        consume_whitespace(); // Go until theres no whitespace 
+    }
+    while (*current_char == '\n'){ // If current character is a \n go until theres no \n (newline character)
         next_step();
-        return flags::Token{.size=1, .type=type};
-    };
-    while (is_space(current_char)) {
-        consume_whitespace();
     }
     switch (*current_char){
+
+        case '/':
+            if (can_be_next() && *(current_char+1) == '/'){
+                next_step();
+                while (*current_char!='\n' && next_step()){}
+                if (*current_char == '\n' && can_be_next()) {next_step();}
+                return get_token();
+            } else {
+                return make_single_char(flags::EXPRESSION_DIV);
+            }
         case '\"': {
-            next_step(); // Move past the opening quote
+            next_step(); // Move past the opening quote to avoid looping
             const char* tkn_start = current_char; // Start of actual string content
 
             while (*current_char != '"') {
@@ -22,51 +32,51 @@ flags::Token Lexer::get_token()
                 }
             }
 
-            const char* str_end = current_char; // Points at the closing quote
-            next_step(); // Move past the closing quote
+            const char* str_end = current_char;
+            next_step(); // Move past the closing quote to avoid errors for unmatched string
 
-            // The string_view should only include the actual string content
             return flags::Token{
                 std::string_view(tkn_start, str_end - tkn_start),
-                str_end - tkn_start, // total characters read (including quotes)
+                str_end - tkn_start,
                 flags::T_Type::EXPRESSION_STRING
             };
         }
         case '=': 
-            if (can_be_next() && *(current_char+1) == '='){
+            if (can_be_next() && *(current_char+1) == '='){ // If next character is '=' then return a EXPRESSION_EQUAL
                 next_step(); // Consume next turn for the double = 
                 return make_single_char(flags::EXPRESSION_EQUAL);
             } else {
-                return make_single_char(flags::EXPRESSION_ASSIGN);
+                return make_single_char(flags::EXPRESSION_ASSIGN); // If next character isn't '=' or it is at the end of the whole buffer then its a assign operator
             }
-
+        // all one character tokens
         case ';': return make_single_char(flags::EXPRESSION_END);
         case '|': return make_single_char(flags::EXPRESSION_OR);
         case '+': return make_single_char(flags::EXPRESSION_PLUS);
         case '!': return make_single_char(flags::EXPRESSION_NOT);
         case '-': return make_single_char(flags::EXPRESSION_MINUS);
         case '&': return make_single_char(flags::EXPRESSION_AND);
-        case '{': return make_single_char(flags::EXPRESSION_OBRACKET);
-        case '}': return make_single_char(flags::EXPRESSION_CBRACKET);
+        case '{': return make_single_char(flags::EXPRESSION_LBRACK);
+        case '}': return make_single_char(flags::EXPRESSION_RBRACK);
         case '(': return make_single_char(flags::EXPRESSION_LPAREN);
         case ')': return make_single_char(flags::EXPRESSION_RPAREN);
-        
+        case '.': return make_single_char(flags::EXPRESSION_DOT);
+        case ':': return make_single_char(flags::EXPRESSION_DDOT);
         default:
-            if (isdigit(*current_char)){
+            if (isdigit(*current_char)){ // if current character is digit
                 const char* start_tkn = current_char;
-                while (isdigit(*current_char) && next_step()){}
+                while (isdigit(*current_char) && next_step()){} // read until theres no digit or its at the end of the buffer
                 int size = current_char-start_tkn;
-                return flags::Token{std::string_view(start_tkn, size), size, flags::T_Type::EXPRESSION_NUMBER};
-            } else if (isalpha(*current_char) || *current_char=='_'){
+                return flags::Token{std::string_view(start_tkn, size), size, flags::T_Type::EXPRESSION_NUMBER}; // make a string_view with data of integer and type number
+            } else if (isalpha(*current_char) || *current_char=='_'){ // If character is a alphabetic character or '_'
                 const char* start_tkn = current_char;
-                while ((isalpha(*current_char) || isdigit(*current_char) || *current_char=='_') && next_step()){}
+                while ((isalpha(*current_char) || isdigit(*current_char) || *current_char=='_') && next_step()){} // read until theres no character which is a alphabetic numeral or a '_' or theres no character to read from
                 int size = current_char-start_tkn;
-                return flags::Token{std::string_view(start_tkn, size), size, flags::T_Type::EXPRESSION_NAME};
+                return flags::Token{std::string_view(start_tkn, size), size, flags::T_Type::EXPRESSION_NAME}; // Make a string view with type name and data of the read data
             }
-            else if (!can_be_next()){
+            else if (!can_be_next()){ // If it is at the end of the buffer
                 return make_single_char(flags::EXPRESSION_NPOS);
             }
-            else {
+            else { // If theres no character which has been handled
                 throw std::runtime_error("Unkown character");
             }
     }
@@ -95,6 +105,12 @@ bool Lexer::can_be_next()
         return false;
     }
     return true;
+}
+
+flags::Token Lexer::make_single_char(flags::T_Type type)
+{
+    next_step();
+    return flags::Token{.size=1, .type=type};
 }
 
 bool Lexer::is_space(const char *x)

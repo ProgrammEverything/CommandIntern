@@ -19,10 +19,13 @@ namespace flags{
         EXPRESSION_STRING,
         EXPRESSION_NAME,
         EXPRESSION_END,
-        EXPRESSION_OBRACKET,
-        EXPRESSION_CBRACKET,
+        EXPRESSION_LBRACK,
+        EXPRESSION_RBRACK,
         EXPRESSION_LPAREN,
-        EXPRESSION_RPAREN
+        EXPRESSION_RPAREN,
+        EXPRESSION_DIV,
+        EXPRESSION_DOT,
+        EXPRESSION_DDOT
     };
     struct Token{
         std::string_view data;

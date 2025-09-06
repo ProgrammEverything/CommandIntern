@@ -2,7 +2,7 @@
 #include <Lexer.h>
 #include <vector>
 int main(){
-    Lexer a("b=\"222\" + 2 + 2 - 1 - 1 - 1 + x - 2");
+    Lexer a("a31232.2 AUTHORIZATION_KEY=20");
     std::vector<flags::Token> tkn{};
     while (true){
         flags::Token tkn = a.get_token();
