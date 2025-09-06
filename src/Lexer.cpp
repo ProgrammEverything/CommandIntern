@@ -5,34 +5,34 @@
 flags::Token Lexer::get_token()
 {
 
-    if (is_space(current_char)) { // If current character is space. skip until the current character is not a space
+    if (is_space(m_current_char)) { // If current character is space. skip until the current character is not a space
         consume_whitespace(); // Go until theres no whitespace 
     }
-    while (*current_char == '\n'){ // If current character is a \n go until theres no \n (newline character)
+    while (*m_current_char == '\n'){ // If current character is a \n go until theres no \n (newline character)
         next_step();
     }
-    switch (*current_char){
+    switch (*m_current_char){
 
         case '/':
-            if (can_be_next() && *(current_char+1) == '/'){
+            if (can_be_next() && *(m_current_char+1) == '/'){
                 next_step();
-                while (*current_char!='\n' && next_step()){}
-                if (*current_char == '\n' && can_be_next()) {next_step();}
+                while (*m_current_char!='\n' && next_step()){}
+                if (*m_current_char == '\n' && can_be_next()) {next_step();}
                 return get_token();
             } else {
                 return make_single_char(flags::EXPRESSION_DIV);
             }
         case '\"': {
             next_step(); // Move past the opening quote to avoid looping
-            const char* tkn_start = current_char; // Start of actual string content
+            const char* tkn_start = m_current_char; // Start of actual string content
 
-            while (*current_char != '"') {
+            while (*m_current_char != '"') {
                 if (!next_step()) {
                     throw std::runtime_error("Expected \" at the end of string");
                 }
             }
 
-            const char* str_end = current_char;
+            const char* str_end = m_current_char;
             next_step(); // Move past the closing quote to avoid errors for unmatched string
 
             return flags::Token{
@@ -42,13 +42,14 @@ flags::Token Lexer::get_token()
             };
         }
         case '=': 
-            if (can_be_next() && *(current_char+1) == '='){ // If next character is '=' then return a EXPRESSION_EQUAL
+            if (can_be_next() && *(m_current_char+1) == '='){ // If next character is '=' then return a EXPRESSION_EQUAL
                 next_step(); // Consume next turn for the double = 
                 return make_single_char(flags::EXPRESSION_EQUAL);
             } else {
                 return make_single_char(flags::EXPRESSION_ASSIGN); // If next character isn't '=' or it is at the end of the whole buffer then its a assign operator
             }
         // all one character tokens
+
         case ';': return make_single_char(flags::EXPRESSION_END);
         case '|': return make_single_char(flags::EXPRESSION_OR);
         case '+': return make_single_char(flags::EXPRESSION_PLUS);
@@ -63,16 +64,16 @@ flags::Token Lexer::get_token()
         case ':': return make_single_char(flags::EXPRESSION_DDOT);
         
         default:
-            if (isdigit(*current_char)){ // if current character is digit
-                const char* start_tkn = current_char;
-                while (isdigit(*current_char) && next_step()){} // read until theres no digit or its at the end of the buffer
-                int size = current_char-start_tkn;
-                return flags::Token{std::string_view(start_tkn, size), size, flags::T_Type::EXPRESSION_NUMBER}; // make a string_view with data of integer and type number
-            } else if (isalpha(*current_char) || *current_char=='_'){ // If character is a alphabetic character or '_'
-                const char* start_tkn = current_char;
-                while ((isalpha(*current_char) || isdigit(*current_char) || *current_char=='_') && next_step()){} // read until theres no character which is a alphabetic numeral or a '_' or theres no character to read from
-                int size = current_char-start_tkn;
-                return flags::Token{std::string_view(start_tkn, size), size, flags::T_Type::EXPRESSION_NAME}; // Make a string view with type name and data of the read data
+            if (isdigit(*m_current_char)){ // if current character is digit
+                const char* start_tkn = m_current_char;
+                while (isdigit(*m_current_char) && next_step()){} // read until theres no digit or its at the end of the buffer
+                int size = m_current_char-start_tkn;
+                return flags::Token{std::string_view(start_tkn, size), size,m_cline, m_cchar, flags::T_Type::EXPRESSION_NUMBER}; // make a string_view with data of integer and type number
+            } else if (isalpha(*m_current_char) || *m_current_char=='_'){ // If character is a alphabetic character or '_'
+                const char* start_tkn = m_current_char;
+                while ((isalpha(*m_current_char) || isdigit(*m_current_char) || *m_current_char=='_') && next_step()){} // read until theres no character which is a alphabetic numeral or a '_' or theres no character to read from
+                int size = m_current_char-start_tkn;
+                return flags::Token{std::string_view(start_tkn, size), size,m_cline, m_cchar, flags::T_Type::EXPRESSION_NAME}; // Make a string view with type name and data of the read data
             }
             else if (!can_be_next()){ // If it is at the end of the buffer
                 return make_single_char(flags::EXPRESSION_NPOS);
@@ -86,15 +87,21 @@ flags::Token Lexer::get_token()
 
 void Lexer::consume_whitespace()
 {
-    while (next_step() && is_space(current_char)) {}
+    while (next_step() && is_space(m_current_char)) {}
 }
 
 bool Lexer::next_step()
 {
-    if (++pos > m_v.size()){
+    if (++m_pos > m_v.size()){
         return false;
     }
-    current_char = &m_v[pos];
+    if (*m_current_char == '\n'){
+        m_cline++;
+        m_cchar = 0;
+    } else {
+        m_cchar++;
+    }
+    m_current_char = &m_v[m_pos];
     return true;
 }
 
@@ -102,7 +109,7 @@ bool Lexer::next_step()
 
 bool Lexer::can_be_next()
 {
-    if (pos+1 > m_v.size()){
+    if (m_pos+1 > m_v.size()){
         return false;
     }
     return true;
@@ -111,7 +118,7 @@ bool Lexer::can_be_next()
 flags::Token Lexer::make_single_char(flags::T_Type type)
 {
     next_step();
-    return flags::Token{.size=1, .type=type};
+    return flags::Token{.size=1,.current_line=m_cline, .current_char=m_cchar, .type=type};
 }
 
 bool Lexer::is_space(const char *x)
@@ -119,4 +126,4 @@ bool Lexer::is_space(const char *x)
     if (*x == ' ') { return true; }
     else {return false;}
 }
-Lexer::Lexer(std::string_view v) : m_v(v) {current_char=&m_v[pos];}
+Lexer::Lexer(std::string_view v) : m_v(v) {m_current_char=&m_v[m_pos];}

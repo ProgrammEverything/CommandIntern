@@ -8,40 +8,65 @@ namespace flags{
 
     enum T_Type : int{
         EXPRESSION_ASSIGN,
+        // Numerical operations
         EXPRESSION_EQUAL,
         EXPRESSION_PLUS,
         EXPRESSION_MINUS,
+        EXPRESSION_DIV,
         EXPRESSION_AND,
         EXPRESSION_OR,
         EXPRESSION_NOT,
+        // Number operation
         EXPRESSION_NUMBER,
+        // End of buffer operation
         EXPRESSION_NPOS,
+        // String operation
         EXPRESSION_STRING,
+        // Name operation
         EXPRESSION_NAME,
+        // End operation ';'
         EXPRESSION_END,
+        // Bracket and Parenthesis operations
         EXPRESSION_LBRACK,
         EXPRESSION_RBRACK,
         EXPRESSION_LPAREN,
         EXPRESSION_RPAREN,
-        EXPRESSION_DIV,
+        // dot operations
         EXPRESSION_DOT,
         EXPRESSION_DDOT
     };
     struct Token{
         std::string_view data;
         long int size;
+        long int current_line;
+        long int current_char;
         T_Type type;
-        bool is_operation(){
-            if (type != EXPRESSION_NUMBER ){
-                return true;
-            }
-            return false;
+        bool opNumerical(){
+            return type >= 1 && type<=7;
         }
-        bool is_number(){
-            if (type == EXPRESSION_NUMBER){
-                return true;
-            }
-            return false;
+        bool opEnd(){
+            return type == EXPRESSION_END;
+        }
+        bool opPB(){
+            return type >= 13 && type <= 16;
+        }
+        bool opNumber(){
+            return type == EXPRESSION_NUMBER;
+        }
+        bool opDot(){
+            return type >= 17 && type <= 18;
+        }
+        bool opNPOS(){
+            return type==EXPRESSION_NPOS;
+        }
+        bool opString(){
+            return type==EXPRESSION_STRING;
+        }
+        bool opName(){
+            return type=EXPRESSION_NAME;
+        }
+        bool opAssign(){
+            return type==EXPRESSION_ASSIGN;
         }
     };
 }
