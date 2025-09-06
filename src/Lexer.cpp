@@ -61,6 +61,7 @@ flags::Token Lexer::get_token()
         case ')': return make_single_char(flags::EXPRESSION_RPAREN);
         case '.': return make_single_char(flags::EXPRESSION_DOT);
         case ':': return make_single_char(flags::EXPRESSION_DDOT);
+        
         default:
             if (isdigit(*current_char)){ // if current character is digit
                 const char* start_tkn = current_char;
