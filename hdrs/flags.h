@@ -7,6 +7,7 @@ namespace flags{
     };
 
     enum T_Type : int{
+        // Assignment operation
         EXPRESSION_ASSIGN,
         // Numerical operations
         EXPRESSION_EQUAL,
@@ -42,19 +43,19 @@ namespace flags{
         long int current_char;
         T_Type type;
         bool opNumerical(){
-            return type >= 1 && type<=7;
+            return type >= 1 && type<=7; // range 1 - 7 is all numerical operations
         }
         bool opEnd(){
             return type == EXPRESSION_END;
         }
         bool opPB(){
-            return type >= 13 && type <= 16;
+            return type >= 13 && type <= 16; // range 13 - 16 is all Paranthesis or Brakcet operations
         }
         bool opNumber(){
             return type == EXPRESSION_NUMBER;
         }
         bool opDot(){
-            return type >= 17 && type <= 18;
+            return type >= 17 && type <= 18; // range 17 - 18 is all Dot and Double Dot operations (DDOT)
         }
         bool opNPOS(){
             return type==EXPRESSION_NPOS;
