@@ -2,6 +2,7 @@
 #include <flags.h>
 class Lexer{
 public:
+    Lexer(Lexer& other);
     Lexer(std::string_view v);
     flags::Token get_token();
     void consume_whitespace();

@@ -126,4 +126,5 @@ bool Lexer::is_space(const char *x)
     if (*x == ' ') { return true; }
     else {return false;}
 }
-Lexer::Lexer(std::string_view v) : m_v(v) {m_current_char=&m_v[m_pos];}
+
+Lexer::Lexer(std::string_view v) : m_v(v) { m_current_char = &m_v[m_pos]; }
