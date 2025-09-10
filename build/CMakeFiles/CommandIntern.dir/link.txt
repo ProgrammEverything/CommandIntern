@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/CommandIntern.dir/link.d CMakeFiles/CommandIntern.dir/src/BasicInterp.cpp.o CMakeFiles/CommandIntern.dir/src/Handler.cpp.o CMakeFiles/CommandIntern.dir/src/Lexer.cpp.o CMakeFiles/CommandIntern.dir/src/main.cpp.o -o CommandIntern
