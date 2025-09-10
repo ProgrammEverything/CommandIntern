@@ -38,6 +38,7 @@ flags::Token Lexer::get_token()
             return flags::Token{
                 std::string_view(tkn_start, str_end - tkn_start),
                 str_end - tkn_start,
+                flags::Position{m_cchar, m_cchar},
                 flags::T_Type::EXPRESSION_STRING
             };
         }
@@ -68,12 +69,12 @@ flags::Token Lexer::get_token()
                 const char* start_tkn = m_current_char;
                 while (isdigit(*m_current_char) && next_step()){} // read until theres no digit or its at the end of the buffer
                 int size = m_current_char-start_tkn;
-                return flags::Token{std::string_view(start_tkn, size), size,m_cline, m_cchar, flags::T_Type::EXPRESSION_NUMBER}; // make a string_view with data of integer and type number
+                return flags::Token{std::string_view(start_tkn, size), size,flags::Position{m_cchar, m_cchar}, flags::T_Type::EXPRESSION_NUMBER}; // make a string_view with data of integer and type number
             } else if (isalpha(*m_current_char) || *m_current_char=='_'){ // If character is a alphabetic character or '_'
                 const char* start_tkn = m_current_char;
                 while ((isalpha(*m_current_char) || isdigit(*m_current_char) || *m_current_char=='_') && next_step()){} // read until theres no character which is a alphabetic numeral or a '_' or theres no character to read from
                 int size = m_current_char-start_tkn;
-                return flags::Token{std::string_view(start_tkn, size), size,m_cline, m_cchar, flags::T_Type::EXPRESSION_NAME}; // Make a string view with type name and data of the read data
+                return flags::Token{std::string_view(start_tkn, size), size,flags::Position{m_cchar, m_cchar}, flags::T_Type::EXPRESSION_NAME}; // Make a string view with type name and data of the read data
             }
             else if (!can_be_next()){ // If it is at the end of the buffer
                 return make_single_char(flags::EXPRESSION_NPOS);
@@ -118,7 +119,7 @@ bool Lexer::can_be_next()
 flags::Token Lexer::make_single_char(flags::T_Type type)
 {
     next_step();
-    return flags::Token{.size=1,.current_line=m_cline, .current_char=m_cchar, .type=type};
+    return flags::Token{.size=1, .pos = flags::Position{.current_line = m_cline,.current_char = m_cchar}, .type=type};
 }
 
 bool Lexer::is_space(const char *x)

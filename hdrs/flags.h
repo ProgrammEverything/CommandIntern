@@ -1,4 +1,5 @@
 #pragma once
+#include <string_view>
 namespace flags{
     enum BI_Flags : int {
         BI_NERROR = 0x1,
@@ -34,13 +35,19 @@ namespace flags{
         EXPRESSION_RPAREN,
         // dot operations
         EXPRESSION_DOT,
-        EXPRESSION_DDOT
+        EXPRESSION_DDOT,
+        // Newline
+        EXPRESSION_NEWLINE
+    };
+    // branch for all calculation stuff
+    struct Position{
+        long int current_line;
+        long int current_char;
     };
     struct Token{
         std::string_view data;
         long int size;
-        long int current_line;
-        long int current_char;
+        Position pos;
         T_Type type;
         bool opNumerical(){
             return type >= 1 && type<=7; // range 1 - 7 is all numerical operations
@@ -70,4 +77,5 @@ namespace flags{
             return type==EXPRESSION_ASSIGN;
         }
     };
+    
 }
