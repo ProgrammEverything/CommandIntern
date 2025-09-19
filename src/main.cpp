@@ -3,6 +3,12 @@
 #include <vector>
 #include <CLI11.hpp>
 #include <BinaryNode.h>
+#include <Parser.h>
+std::ostream& operator<<(std::ostream& os, const flags::Token& tkn){
+    os<<"Token(data=\"" << tkn.data << "\", size=" << tkn.size << ", pos=(" << tkn.pos.current_line << "," << tkn.pos.current_char << "), type=" << tkn.type << ")";
+    return os;
+}
+
 int main(){
     
     // while (true){
@@ -21,5 +27,10 @@ int main(){
     //         std::cout<<j << "\t" << b << "\t" << c << "\n\t" << d << "\t" << e << "\n";
     //     }
     // }
+    Lexer x("2+5-1;3/3;");
+    Parser l(x);
+    auto block = l.parse_all();
+    block->execute_all();
+    return 0;
     
 }

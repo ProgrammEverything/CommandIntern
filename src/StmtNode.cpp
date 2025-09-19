@@ -1,6 +1,6 @@
 #include "StmtNode.h"
 #include <iostream>
-StmtNode::StmtNode(std::unique_ptr<ArthNode> expr) : m_expr(std::move(expr)) {}
+StmtNode::StmtNode(std::shared_ptr<ArthNode> expr) : m_expr(expr) {}
 void StmtNode::execute()
 {
     m_expr->evaluate();
@@ -12,8 +12,4 @@ void StmtNode::print(int indents) const
     }
     std::cout << "StmtNode:\n";
     m_expr->print(indents + 1);
-}
-void StmtNode::insert_expr(std::unique_ptr<ArthNode> expr)
-{
-    
 }

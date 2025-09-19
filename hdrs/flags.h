@@ -50,7 +50,13 @@ namespace flags{
         Position pos;
         T_Type type;
         bool opNumerical(){
-            return type >= 1 && type<=7; // range 1 - 7 is all numerical operations
+            return type == EXPRESSION_PLUS 
+            ||     type == EXPRESSION_MINUS 
+            ||     type == EXPRESSION_DIV 
+            ||     type == EXPRESSION_AND 
+            ||     type == EXPRESSION_OR 
+            ||     type == EXPRESSION_NOT 
+            ||     type == EXPRESSION_EQUAL; 
         }
         bool opEnd(){
             return type == EXPRESSION_END;

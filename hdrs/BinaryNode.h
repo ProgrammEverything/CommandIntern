@@ -4,15 +4,16 @@
 #include <OperatorNode.h>
 class BinaryNode : public ArthNode {
 private:
-    std::unique_ptr<ArthNode> m_lhs;
-    std::unique_ptr<OperatorNode> m_ths;
-    std::unique_ptr<ArthNode> m_rhs;
+    std::shared_ptr<ArthNode> m_lhs;
+    std::shared_ptr<OperatorNode> m_ths;
+    std::shared_ptr<ArthNode> m_rhs;
 public:
     BinaryNode(
-        std::unique_ptr<ArthNode> lhs,
-        std::unique_ptr<OperatorNode> ths,
-        std::unique_ptr<ArthNode> rhs
+        std::shared_ptr<ArthNode> lhs,
+        std::shared_ptr<OperatorNode> ths,
+        std::shared_ptr<ArthNode> rhs
     );
+    BinaryNode() = default;
     double evaluate() override;
     void print(int indents) const override;
 

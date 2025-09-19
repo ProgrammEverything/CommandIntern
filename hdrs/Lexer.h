@@ -1,3 +1,4 @@
+#pragma once
 #include <string_view>
 #include <flags.h>
 class Lexer{

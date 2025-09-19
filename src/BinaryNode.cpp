@@ -2,9 +2,9 @@
 #include <exception>
 #include <iostream>
 BinaryNode::BinaryNode(
-        std::unique_ptr<ArthNode> lhs,
-        std::unique_ptr<OperatorNode> ths,
-        std::unique_ptr<ArthNode> rhs
+        std::shared_ptr<ArthNode> lhs,
+        std::shared_ptr<OperatorNode> ths,
+        std::shared_ptr<ArthNode> rhs
 ) : m_lhs(std::move(lhs)), m_rhs(std::move(rhs)), m_ths(std::move(ths)){}
 double BinaryNode::evaluate(){
     std::cout<<"Evaluating BinaryNode\n";
